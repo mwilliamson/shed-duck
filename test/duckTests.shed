@@ -1,0 +1,11 @@
+package duck;
+
+import hat.TestCase;
+import hat.assertTrue;
+import duck;
+
+public val duckTests = listOf(
+    TestCase("equalTo returns true if values are equal", fun() =>
+        assertTrue(duck.equalTo[String]("blah").matches("blah"))
+    )
+);

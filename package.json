@@ -1,0 +1,10 @@
+{
+    "name": "duck",
+    "version": "0.1.0",
+    "dependencies": {
+        "shed-compiler": "git://github.com/mwilliamson/node-shed-compiler.git"
+    },
+    "devDependencies": {
+        "shed-hat": "git://github.com/mwilliamson/shed-hat.git"
+    }
+}
