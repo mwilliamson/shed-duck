@@ -3,6 +3,7 @@ public val duck = object {
     
     def EqualTo class[T] => (value: T) => {
         public def matches fun(other: T) => value.equals(other);
+        public def describeMismatch fun(other: T) => "but got ".concat(representation(other));
         public def describeSelf fun() => representation(value);
     }
 };

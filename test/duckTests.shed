@@ -1,5 +1,6 @@
 package duck;
 
+import hat.TestResult;
 import hat.TestCase;
 import hat.assertTrue;
 import hat.assertFalse;
@@ -9,11 +10,30 @@ import duck;
 
 public val duckTests = listOf(
     TestCase("equalTo matches using equals method", fun() => {
-        val matcher = duck.equalTo[String]("blah");
-        return all(listOf(
-            assertTrue(matcher.matches("blah")),
-            assertFalse(matcher.matches("Blah")),
-            assertEquals[String]("\"blah\"", matcher.describeSelf())
+        return testMatcher(duck.equalTo[String]("blah"), listOf(
+            description("\"blah\""),
+            positive[String]("blah"),
+            negative[String]("Blah", mismatchDescription("but got \"Blah\""))
         ));
     })
 );
+
+def testMatcher fun(matcher: Matcher[T], assertions: List[(Matcher[T]) -> TestResult]) : TestResult => {
+    return all(assertions.map(fun(assertion: (Matcher[T]) -> TestResult) => assertion(matcher)));
+}
+
+def description fun(expectedDescription: String) =>
+    fun(matcher: Matcher[T]) =>
+        assertEquals[String](expectedDescription, matcher.describeSelf())
+
+def positive fun[T] => (positiveValue: T) =>
+    fun(matcher: Matcher[T]) =>
+        assertTrue(matcher.matches(positiveValue))
+
+def negative fun[T] => (negativeValue: T, mismatchDescription: String) =>
+    fun(matcher: Matcher[T]) => all(listOf(
+        assertFalse(matcher.matches(negativeValue)),
+        assertEquals[String](mismatchDescription, matcher.describeMismatch(negativeValue))
+    ))
+
+def mismatchDescription fun(description: String) => description
