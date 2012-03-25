@@ -2,6 +2,7 @@ public val duck = object {
     public def equalTo fun[T] => (value: T) => EqualTo[T](value);
     
     def EqualTo class[T] => (value: T) => {
-        public def matches fun(other: T) => value.equals(other)
+        public def matches fun(other: T) => value.equals(other);
+        public def describeSelf fun() => value.toRepresentation();
     }
 };

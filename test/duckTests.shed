@@ -2,10 +2,17 @@ package duck;
 
 import hat.TestCase;
 import hat.assertTrue;
+import hat.assertFalse;
+import hat.assertEquals;
+import hat.results.all;
 import duck;
 
 public val duckTests = listOf(
-    TestCase("equalTo returns true if values are equal", fun() =>
-        assertTrue(duck.equalTo[String]("blah").matches("blah"))
+    TestCase("equalTo matches using equals method", fun() =>
+        all(listOf(
+            assertTrue(duck.equalTo[String]("blah").matches("blah")),
+            assertFalse(duck.equalTo[String]("blah").matches("Blah")),
+            assertEquals[String]("\"blah\"", duck.equalTo[String]("blah").describeSelf())
+        ))
     )
 );
