@@ -8,11 +8,12 @@ import hat.results.all;
 import duck;
 
 public val duckTests = listOf(
-    TestCase("equalTo matches using equals method", fun() =>
-        all(listOf(
-            assertTrue(duck.equalTo[String]("blah").matches("blah")),
-            assertFalse(duck.equalTo[String]("blah").matches("Blah")),
-            assertEquals[String]("\"blah\"", duck.equalTo[String]("blah").describeSelf())
-        ))
-    )
+    TestCase("equalTo matches using equals method", fun() => {
+        val matcher = duck.equalTo[String]("blah");
+        return all(listOf(
+            assertTrue(matcher.matches("blah")),
+            assertFalse(matcher.matches("Blah")),
+            assertEquals[String]("\"blah\"", matcher.describeSelf())
+        ));
+    })
 );
