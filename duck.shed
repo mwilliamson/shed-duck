@@ -31,13 +31,13 @@ public val duck = object {
             matchesWithDescription(other).mismatchDescription();
             
         public def matchesWithDescription fun(other: List[T]) => 
-            if (not(matchers.length().equals(other.length()))) {
-                val length = other.length().toString();
-                val description = "list was of length ".concat(length);
-                return MatchResult(false, description);
-            } else {
-                return matchesElementsWithDescription(other);
-            }
+            if (not(matchers.length().equals(other.length())))
+                MatchResult(
+                    false,
+                    "list was of length ".concat(other.length().toString())
+                )
+            else
+                matchesElementsWithDescription(other);
             
         def matchesElementsWithDescription fun(other: List[T]) => {
             val mismatches = zip(range(0, matchers.length()), matchers, other)
