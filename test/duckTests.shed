@@ -15,7 +15,7 @@ public val duckTests = listOf(
         return testMatcher(duck.equalTo[String]("blah"), listOf(
             description("\"blah\""),
             positive[String]("blah"),
-            negative[String]("Blah", mismatchDescription("but got \"Blah\""))
+            negative[String]("Blah", mismatchDescription("was \"Blah\""))
         ));
     }),
     
@@ -24,7 +24,11 @@ public val duckTests = listOf(
         return testMatcher(duck.isList[String](list), listOf(
             description("listOf(\"apple\", \"banana\")"),
             positive[List[String]](listOf("apple", "banana")),
-            negative[List[String]](listOf(), mismatchDescription("but list was of length 0"))
+            negative[List[String]](listOf(), mismatchDescription("list was of length 0")),
+            negative[List[String]](
+                listOf("apple", "coconut"),
+                mismatchDescription("element at index 1 did not match:\n  was \"coconut\"\n  expected \"banana\"")
+            )
         ));
     })
 );

@@ -5,12 +5,15 @@ public val duck = object {
     public def equalTo fun[T] => (value: T) => EqualTo[T](value);
     
     def EqualTo class[T] => (value: T) => {
+        public def describeSelf fun() => representation(value);
+        
         public def matches fun(other: T) => value.equals(other);
         
         public def describeMismatch fun(other: T) =>
-            "but got ".concat(representation(other));
+            "was ".concat(representation(other));
             
-        public def describeSelf fun() => representation(value);
+        public def matchesWithDescription fun(other: T) =>
+            MatchResult(matches(other), describeMismatch(other))
     }
     
     public def isList fun[T] => (value: List[Matcher[T]]) => IsList[T](value);
@@ -21,10 +24,48 @@ public val duck = object {
             return "listOf(".concat(join(", ", descriptions)).concat(")");
         }
         
-        public def matches fun(other: List[T]) =>
-            matchers.length().equals(other.length());
+        public def matches fun(other: List[T]) => 
+            matchesWithDescription(other).matches()
         
         public def describeMismatch fun(other: List[T]) =>
-            "but list was of length ".concat(other.length().toString());
+            matchesWithDescription(other).mismatchDescription();
+            
+        public def matchesWithDescription fun(other: List[T]) => 
+            if (not(matchers.length().equals(other.length()))) {
+                val length = other.length().toString();
+                val description = "list was of length ".concat(length);
+                return MatchResult(false, description);
+            } else {
+                val execMatcher = pack(fun(index: Double, matcher: Matcher[T], other: T) =>
+                    MatchResultWithIndex(index, matcher, matcher.matches(other), matcher.describeMismatch(other)));
+                val mismatches = zip(range(0, matchers.length()), matchers, other)
+                    .map(execMatcher)
+                    .filter(fun(result: MatchResultWithIndex) => not(result.matches()));
+                return if (mismatches.isEmpty())
+                    MatchResult(true, "")
+                else {
+                    val firstMismatch = mismatches.head();
+                    val description = "element at index "
+                        .concat(firstMismatch.index().toString())
+                        .concat(" did not match:")
+                        .concat("\n  ")
+                        .concat(firstMismatch.mismatchDescription())
+                        .concat("\n  expected ")
+                        .concat(firstMismatch.matcher().describeSelf());
+                    return MatchResult(false, description);
+                };
+            }
+    }
+    
+    def MatchResult class(matches_: Boolean, mismatchDescription_: String) => {
+        public def matches fun() => matches_;
+        public def mismatchDescription fun() => mismatchDescription_;
+    }
+    
+    def MatchResultWithIndex class(index_: Double, matcher_: Matcher[Nothing], matches_: Boolean, mismatchDescription_: String) => {
+        public def index fun() => index_;
+        public def matcher fun() => matcher_;
+        public def matches fun() => matches_;
+        public def mismatchDescription fun() => mismatchDescription_;
     }
 };
