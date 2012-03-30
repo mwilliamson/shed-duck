@@ -68,11 +68,4 @@ public val duck = object {
         public def matches fun() => matches_;
         public def mismatchDescription fun() => mismatchDescription_;
     }
-    
-    def MatchResultWithIndex class(index_: Double, matcher_: Matcher[Nothing], matches_: Boolean, mismatchDescription_: String) => {
-        public def index fun() => index_;
-        public def matcher fun() => matcher_;
-        public def matches fun() => matches_;
-        public def mismatchDescription fun() => mismatchDescription_;
-    }
 };
