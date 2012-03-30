@@ -55,9 +55,8 @@ public val duck = object {
                     .foldLeft(emptyList, concat);
                 return if (mismatches.isEmpty())
                     MatchResult(true, "")
-                else {
-                    return MatchResult(false, mismatches.head());
-                };
+                else
+                    MatchResult(false, mismatches.head());
             }
     }
     
