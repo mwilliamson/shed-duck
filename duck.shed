@@ -36,23 +36,27 @@ public val duck = object {
                 val description = "list was of length ".concat(length);
                 return MatchResult(false, description);
             } else {
-                val execMatcher = pack(fun(index: Double, matcher: Matcher[T], other: T) =>
-                    MatchResultWithIndex(index, matcher, matcher.matches(other), matcher.describeMismatch(other)));
+                val execMatcher = fun(index: Double, matcher: Matcher[T], other: T) =>
+                    if (matcher.matches(other)) 
+                        none
+                    else {
+                        val description = "element at index "
+                            .concat(index.toString())
+                            .concat(" did not match:")
+                            .concat("\n  ")
+                            .concat(matcher.describeMismatch(other))
+                            .concat("\n  expected ")
+                            .concat(matcher.describeSelf());
+                        return some(description);
+                    };
+                        
                 val mismatches = zip(range(0, matchers.length()), matchers, other)
-                    .map(execMatcher)
-                    .filter(fun(result: MatchResultWithIndex) => not(result.matches()));
+                    .map(pack(execMatcher))
+                    .foldLeft(emptyList, concat);
                 return if (mismatches.isEmpty())
                     MatchResult(true, "")
                 else {
-                    val firstMismatch = mismatches.head();
-                    val description = "element at index "
-                        .concat(firstMismatch.index().toString())
-                        .concat(" did not match:")
-                        .concat("\n  ")
-                        .concat(firstMismatch.mismatchDescription())
-                        .concat("\n  expected ")
-                        .concat(firstMismatch.matcher().describeSelf());
-                    return MatchResult(false, description);
+                    return MatchResult(false, mismatches.head());
                 };
             }
     }
