@@ -7,23 +7,31 @@ import hat.assertFalse;
 import hat.assertEquals;
 import hat.results.all;
 import duck;
+import duck.Matcher;
+import duck.equalTo;
 
-public val duckTests = listOf(
+public val duckTests = listOf[TestCase](
     TestCase("equalTo matches using equals method", fun() => {
-        return testMatcher(duck.equalTo[String]("blah"), listOf(
+        return testMatcher(duck.equalTo[String]("blah"), listOf[Func[Matcher[String], TestResult]](
             description("\"blah\""),
             positive[String]("blah"),
             negative[String]("Blah", mismatchDescription("but got \"Blah\""))
         ));
+    }),
+    
+    TestCase("isList matches if lists are same length and all elements match", fun() => {
+        val list = listOf[Matcher[String]](equalTo[String]("apple"), equalTo[String]("banana"));
+        return testMatcher(duck.isList[String](list), listOf[Func[Matcher[List[String]], TestResult]](
+            description("listOf(\"apple\", \"banana\")")
+        ));
     })
 );
 
-def testMatcher fun(matcher: Matcher[T], assertions: List[(Matcher[T]) -> TestResult]) : TestResult => {
-    return all(assertions.map(fun(assertion: (Matcher[T]) -> TestResult) => assertion(matcher)));
-}
+def testMatcher fun(matcher: Matcher[T], assertions: List[Func[Matcher[T], TestResult]]) : TestResult =>
+    all(assertions.map(fun(assertion: MatcherAssertion) => assertion(matcher)));
 
 def description fun(expectedDescription: String) =>
-    fun(matcher: Matcher[T]) =>
+    fun(matcher: Matcher[Nothing]) =>
         assertEquals[String](expectedDescription, matcher.describeSelf())
 
 def positive fun[T] => (positiveValue: T) =>
@@ -31,7 +39,7 @@ def positive fun[T] => (positiveValue: T) =>
         assertTrue(matcher.matches(positiveValue))
 
 def negative fun[T] => (negativeValue: T, mismatchDescription: String) =>
-    fun(matcher: Matcher[T]) => all(listOf(
+    fun(matcher: Matcher[T]) => all(listOf[Func[TestResult]](
         assertFalse(matcher.matches(negativeValue)),
         assertEquals[String](mismatchDescription, matcher.describeMismatch(negativeValue))
     ))

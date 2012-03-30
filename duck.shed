@@ -1,9 +1,24 @@
 public val duck = object {
+    public def Matcher class[T] => () => {
+    }
+    
     public def equalTo fun[T] => (value: T) => EqualTo[T](value);
     
     def EqualTo class[T] => (value: T) => {
         public def matches fun(other: T) => value.equals(other);
-        public def describeMismatch fun(other: T) => "but got ".concat(representation(other));
+        
+        public def describeMismatch fun(other: T) =>
+            "but got ".concat(representation(other));
+            
         public def describeSelf fun() => representation(value);
+    }
+    
+    public def isList fun[T] => (value: List[Matcher[T]]) => IsList[T](value);
+    
+    def IsList class[T] => (value: List[Matcher[T]]) => {
+        public def describeSelf fun() => {
+            val descriptions = value.map(fun (matcher: Matcher[T]) => matcher.describeSelf());
+            return "listOf(".concat(join(", ", descriptions)).concat(")");
+        }
     }
 };
