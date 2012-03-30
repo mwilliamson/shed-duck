@@ -10,9 +10,9 @@ import duck;
 import duck.Matcher;
 import duck.equalTo;
 
-public val duckTests = listOf[TestCase](
+public val duckTests = listOf(
     TestCase("equalTo matches using equals method", fun() => {
-        return testMatcher(duck.equalTo[String]("blah"), listOf[Func[Matcher[String], TestResult]](
+        return testMatcher(duck.equalTo[String]("blah"), listOf(
             description("\"blah\""),
             positive[String]("blah"),
             negative[String]("Blah", mismatchDescription("but got \"Blah\""))
@@ -20,8 +20,8 @@ public val duckTests = listOf[TestCase](
     }),
     
     TestCase("isList matches if lists are same length and all elements match", fun() => {
-        val list = listOf[Matcher[String]](equalTo[String]("apple"), equalTo[String]("banana"));
-        return testMatcher(duck.isList[String](list), listOf[Func[Matcher[List[String]], TestResult]](
+        val list = listOf(equalTo[String]("apple"), equalTo[String]("banana"));
+        return testMatcher(duck.isList[String](list), listOf(
             description("listOf(\"apple\", \"banana\")")
         ));
     })
@@ -39,7 +39,7 @@ def positive fun[T] => (positiveValue: T) =>
         assertTrue(matcher.matches(positiveValue))
 
 def negative fun[T] => (negativeValue: T, mismatchDescription: String) =>
-    fun(matcher: Matcher[T]) => all(listOf[Func[TestResult]](
+    fun(matcher: Matcher[T]) => all(listOf(
         assertFalse(matcher.matches(negativeValue)),
         assertEquals[String](mismatchDescription, matcher.describeMismatch(negativeValue))
     ))
