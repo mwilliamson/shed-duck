@@ -17,8 +17,14 @@ public val duck = object {
     
     def IsList class[T] => (value: List[Matcher[T]]) => {
         public def describeSelf fun() => {
-            val descriptions = value.map(fun (matcher: Matcher[T]) => matcher.describeSelf());
+            val descriptions = value.map(fun(matcher: Matcher[T]) => matcher.describeSelf());
             return "listOf(".concat(join(", ", descriptions)).concat(")");
         }
+        
+        public def matches fun(other: List[T]) =>
+            value.length().equals(other.length());
+        
+        public def describeMismatch fun(other: List[T]) =>
+            "but list was of length ".concat(other.length().toString());
     }
 };

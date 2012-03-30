@@ -22,7 +22,9 @@ public val duckTests = listOf(
     TestCase("isList matches if lists are same length and all elements match", fun() => {
         val list = listOf(equalTo[String]("apple"), equalTo[String]("banana"));
         return testMatcher(duck.isList[String](list), listOf(
-            description("listOf(\"apple\", \"banana\")")
+            description("listOf(\"apple\", \"banana\")"),
+            positive[List[String]](listOf("apple", "banana")),
+            negative[List[String]](listOf(), mismatchDescription("but list was of length 0"))
         ));
     })
 );
