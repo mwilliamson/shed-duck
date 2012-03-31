@@ -1,6 +1,18 @@
+import hat.results;
+
 public val duck = object {
     public def Matcher class[T] => () => {
     }
+    
+    public def assertThat fun[T] => (value: T, matcher: Matcher[T]) =>
+        if matcher.matches(value)
+            results.success()
+        else
+            results.failure("Expected "
+                .concat(matcher.describeSelf())
+                .concat("\nbut ")
+                .concat(matcher.describeMismatch(value))
+            );
     
     public def equalTo fun[T] => (value: T) => EqualTo[T](value);
     
