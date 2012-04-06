@@ -31,7 +31,7 @@ public val duck = object {
     public def isList fun[T] => (value: List[Matcher[T]]) => IsList[T](value);
     
     def IsList class[T] => (matchers: List[Matcher[T]]) => {
-        public def describeSelf fun() => {
+        public def describeSelf fun() => do {
             val descriptions = matchers.map(fun(matcher: Matcher[T]) => matcher.describeSelf());
             return "listOf(".concat(join(", ", descriptions)).concat(")");
         }
@@ -51,7 +51,7 @@ public val duck = object {
             else
                 matchesElementsWithDescription(other);
             
-        def matchesElementsWithDescription fun(other: List[T]) => {
+        def matchesElementsWithDescription fun(other: List[T]) => do {
             val mismatches = zip(range(0, matchers.length()), matchers, other)
                 .map(pack(execMatcher))
                 .foldLeft(emptyList, concat);
@@ -64,7 +64,7 @@ public val duck = object {
         def execMatcher fun(index: Double, matcher: Matcher[T], other: T) =>
             if matcher.matches(other) then
                 none
-            else {
+            else do {
                 val description = "element at index "
                     .concat(index.toString())
                     .concat(" did not match:")
@@ -76,6 +76,7 @@ public val duck = object {
             };
     }
     
+    // TODO: Eurgh, we need to find a better solution to name collisions
     def MatchResult class(matches_: Boolean, mismatchDescription_: String) => {
         public def matches fun() => matches_;
         public def mismatchDescription fun() => mismatchDescription_;

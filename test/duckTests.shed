@@ -11,7 +11,7 @@ import duck.Matcher;
 import duck.equalTo;
 
 public val duckTests = listOf(
-    TestCase("equalTo matches using equals method", fun() => {
+    TestCase("equalTo matches using equals method", fun() => do {
         return testMatcher(duck.equalTo[String]("blah"), listOf(
             description("\"blah\""),
             positive[String]("blah"),
@@ -19,7 +19,7 @@ public val duckTests = listOf(
         ));
     }),
     
-    TestCase("isList matches if lists are same length and all elements match", fun() => {
+    TestCase("isList matches if lists are same length and all elements match", fun() => do {
         val list = listOf(equalTo[String]("apple"), equalTo[String]("banana"));
         return testMatcher(duck.isList[String](list), listOf(
             description("listOf(\"apple\", \"banana\")"),
