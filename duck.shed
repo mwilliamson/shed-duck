@@ -1,3 +1,7 @@
+import options.some;
+import options.none;
+import lists;
+
 import hat.results;
 
 public val duck = object {
@@ -51,15 +55,16 @@ public val duck = object {
             else
                 matchesElementsWithDescription(other);
             
-        def matchesElementsWithDescription fun(other: List[T]) => do {
-            val mismatches = zip(range(0, matchers.length()), matchers, other)
+        def matchesElementsWithDescription fun(other: List[T]) =>
+            // TODO: should introduce laziness so that we can stop on
+            // first error, or display all errors
+            zip(range(0, matchers.length()), matchers, other)
                 .map(pack(execMatcher))
-                .foldLeft(emptyList, concat);
-            return if (mismatches.isEmpty()) then
-                MatchResult(true, "")
-            else
-                MatchResult(false, mismatches.head());
-        }
+                .foldLeft(none, fun(previous: Option[String], current: Option[String]) =>
+                    previous.orElse[String](fun() => current)
+                )
+                .map[MatchResult](fun(mismatch: String) => MatchResult(false, mismatch))
+                .valueOrElse[MatchResult](fun() => MatchResult(true, ""));
         
         def execMatcher fun(index: Double, matcher: Matcher[T], other: T) =>
             if matcher.matches(other) then
@@ -72,7 +77,7 @@ public val duck = object {
                     .concat(matcher.describeMismatch(other))
                     .concat("\n  expected ")
                     .concat(matcher.describeSelf());
-                return some(description);
+                return some(String)(description);
             };
     }
     
