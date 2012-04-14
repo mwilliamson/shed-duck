@@ -1,6 +1,8 @@
 import options.some;
 import options.none;
 import lists;
+import sequenceables;
+import lazySequenceables;
 
 import hat.results;
 
@@ -55,16 +57,19 @@ public val duck = object {
             else
                 matchesElementsWithDescription(other);
             
-        def matchesElementsWithDescription fun(other: List[T]) =>
-            // TODO: should introduce laziness so that we can stop on
-            // first error, or display all errors
-            zip(range(0, matchers.length()), matchers, other)
-                .map(pack(execMatcher))
-                .foldLeft(none, fun(previous: Option[String], current: Option[String]) =>
-                    previous.orElse[String](fun() => current)
-                )
+        def matchesElementsWithDescription fun(other: List[T]) => do {
+            // TODO: remove hack for type parameters
+            //val matchResults = lazySequences.map[Tuple[Double, Matcher[T], T], Option[String]](
+            val matchResults = lazySequenceables.map[()](
+                pack(execMatcher),
+                zip(range(0, matchers.length()), matchers, other)
+            );
+            // Exploit the fact that an option is a sequence
+            val mismatches = lazySequenceables.concat[String](matchResults);
+            return sequenceables.head[String](mismatches)
                 .map[MatchResult](fun(mismatch: String) => MatchResult(false, mismatch))
                 .valueOrElse[MatchResult](fun() => MatchResult(true, ""));
+        };
         
         def execMatcher fun(index: Double, matcher: Matcher[T], other: T) =>
             if matcher.matches(other) then
