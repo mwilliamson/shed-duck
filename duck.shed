@@ -62,7 +62,7 @@ public val duck = object {
             //val matchResults = lazySequences.map[Tuple[Double, Matcher[T], T], Option[String]](
             val matchResults = lazySequenceables.map[()](
                 pack(execMatcher),
-                zip(range(0, matchers.length()), matchers, other)
+                lists.zip(range(0, matchers.length()), matchers, other)
             );
             // Exploit the fact that an option is a sequence
             val mismatches = lazySequenceables.concat[String](matchResults);
