@@ -3,6 +3,7 @@ import options.none;
 import lists;
 import sequenceables;
 import lazySequenceables;
+import strings;
 
 import hat.results;
 
@@ -39,7 +40,7 @@ public val duck = object {
     def IsList class[T] => (matchers: List[Matcher[T]]) => {
         public def describeSelf fun() => do {
             val descriptions = matchers.map(fun(matcher: Matcher[T]) => matcher.describeSelf());
-            return "listOf(".concat(join(", ", descriptions)).concat(")");
+            return "listOf(".concat(strings.join(", ", descriptions)).concat(")");
         }
         
         public def matches fun(other: List[T]) => 
