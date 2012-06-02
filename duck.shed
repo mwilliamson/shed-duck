@@ -88,7 +88,7 @@ public val duck = object {
     }
     
     // TODO: Eurgh, we need to find a better solution to name collisions
-    def MatchResult class(matches_: Boolean, mismatchDescription_: String) => {
+    public def MatchResult class(matches_: Boolean, mismatchDescription_: String) => {
         public def matches fun() => matches_;
         public def mismatchDescription fun() => mismatchDescription_;
     }
