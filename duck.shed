@@ -8,10 +8,19 @@ import strings;
 import hat.results;
 
 public val duck = object {
-    public def Matcher class[T] => () => {
+    members {
+        Matcher,
+        assertThat,
+        MatchResult,
+        equalTo EqualTo,
+        isList IsList,
+        anything
     }
     
-    public def assertThat fun[T] => (value: T, matcher: Matcher[T]) =>
+    def Matcher class[T] => () => {
+    }
+    
+    def assertThat fun[T] => (value: T, matcher: Matcher[T]) =>
         if matcher.matches(value) then
             results.success()
         else
@@ -20,8 +29,6 @@ public val duck = object {
                 .concat("\nbut ")
                 .concat(matcher.describeMismatch(value))
             );
-    
-    public def equalTo fun[T] => (value: T) => EqualTo[T](value);
     
     def EqualTo class[T] => (value: T) => {
         public def describeSelf fun() => representation(value);
@@ -34,8 +41,6 @@ public val duck = object {
         public def matchesWithDescription fun(other: T) =>
             MatchResult(matches(other), describeMismatch(other))
     }
-    
-    public def isList fun[T] => (value: List[Matcher[T]]) => IsList[T](value);
     
     def IsList class[T] => (matchers: List[Matcher[T]]) => {
         public def describeSelf fun() => do {
@@ -87,9 +92,19 @@ public val duck = object {
             };
     }
     
-    // TODO: Eurgh, we need to find a better solution to name collisions
-    public def MatchResult class(matches_: Boolean, mismatchDescription_: String) => {
-        public def matches fun() => matches_;
-        public def mismatchDescription fun() => mismatchDescription_;
+    val anything = object {
+        members {
+            describeSelf fun() => "<anything>",
+            matches fun(other: Any) => true,
+            describeMismatch fun(other: Any) => "",
+            matchesWithDescription fun(other: Any) => MatchResult(true, "")
+        }
+    };
+    
+    def MatchResult class(matches: Boolean, mismatchDescription: String) => {
+        members {
+            matches fun() => matches,
+            mismatchDescription fun() => mismatchDescription
+        }
     }
 };

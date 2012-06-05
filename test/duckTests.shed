@@ -30,7 +30,14 @@ public val duckTests = listOf(
                 mismatchDescription("element at index 1 did not match:\n  was \"coconut\"\n  expected \"banana\"")
             )
         ));
-    })
+    }),
+    
+    TestCase("anything always matches", fun() =>
+        testMatcher(duck.anything, listOf(
+            description("<anything>"),
+            positive[Unit](listOf("apple", "banana"), "apple", (), false, 5)
+        ))
+    )
 );
 
 def testMatcher fun(matcher: Matcher[T], assertions: List[Func[Matcher[T], TestResult]]) : TestResult =>
