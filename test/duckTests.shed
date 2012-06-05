@@ -48,13 +48,18 @@ def description fun(expectedDescription: String) =>
         assertEquals[String](expectedDescription, matcher.describeSelf())
 
 def positive fun[T] => (positiveValue: T) =>
-    fun(matcher: Matcher[T]) =>
-        assertTrue(matcher.matches(positiveValue))
+    fun(matcher: Matcher[T]) => all(listOf(
+        assertTrue(matcher.matches(positiveValue)),
+        assertTrue(matcher.matchesWithDescription(positiveValue).matches())
+    ))
 
 def negative fun[T] => (negativeValue: T, mismatchDescription: String) =>
     fun(matcher: Matcher[T]) => all(listOf(
         assertFalse(matcher.matches(negativeValue)),
-        assertEquals[String](mismatchDescription, matcher.describeMismatch(negativeValue))
+        assertEquals[String](mismatchDescription, matcher.describeMismatch(negativeValue)),
+        
+        assertFalse(matcher.matchesWithDescription(negativeValue).matches()),
+        assertEquals[String](mismatchDescription, matcher.matchesWithDescription(negativeValue).mismatchDescription())
     ))
 
 def mismatchDescription fun(description: String) => description
