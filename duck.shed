@@ -31,12 +31,12 @@ public val duck = object {
             );
     
     def EqualTo class[T] => (value: T) => {
-        public def describeSelf fun() => representation(value);
+        public def describeSelf fun() => represent(value);
         
         public def matches fun(other: T) => value.equals(other);
         
         public def describeMismatch fun(other: T) =>
-            "was ".concat(representation(other));
+            "was ".concat(represent(other));
             
         public def matchesWithDescription fun(other: T) =>
             MatchResult(matches(other), describeMismatch(other))
