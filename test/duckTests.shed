@@ -1,21 +1,37 @@
 package duck;
 
+import structs;
+
 import hat.TestResult;
 import hat.TestCase;
 import hat.assertTrue;
 import hat.assertFalse;
 import hat.assertEquals;
 import hat.results.all;
+
 import duck;
 import duck.Matcher;
 import duck.equalTo;
 
 public val duckTests = listOf(
-    TestCase("equalTo matches using equals method", fun() => do {
-        return testMatcher(duck.equalTo[String]("blah"), listOf(
+    TestCase("equalTo matches using equals function", fun() =>
+        testMatcher(duck.equalTo("blah"), listOf(
             description("\"blah\""),
-            positive[String]("blah"),
-            negative[String]("Blah", mismatchDescription("was \"Blah\""))
+            positive("blah"),
+            negative("Blah", mismatchDescription("was \"Blah\""))
+        ))
+    ),
+    
+    TestCase("equalTo matches using struct equals", fun() => do {
+        def StringNode class(value: String) => {
+            members {
+                struct fun() => structs.create(StringNode, listOf(value))
+            }
+        }
+        return testMatcher(duck.equalTo(StringNode("blah")), listOf(
+            description("StringNode(\"blah\")"),
+            positive(StringNode("blah")),
+            negative(StringNode("Blah"), mismatchDescription("was StringNode(\"Blah\")"))
         ));
     }),
     

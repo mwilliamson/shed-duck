@@ -33,7 +33,7 @@ public val duck = object {
     def EqualTo class[T] => (value: T) => {
         public def describeSelf fun() => represent(value);
         
-        public def matches fun(other: T) => value.equals(other);
+        public def matches fun(other: T) => equal(value, other);
         
         public def describeMismatch fun(other: T) =>
             "was ".concat(represent(other));
@@ -88,7 +88,7 @@ public val duck = object {
                     .concat(matcher.describeMismatch(other))
                     .concat("\n  expected ")
                     .concat(matcher.describeSelf());
-                return some(String)(description);
+                return some(description);
             };
     }
     
