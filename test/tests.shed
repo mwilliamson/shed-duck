@@ -1,4 +1,8 @@
-package duck;
+module duck.tests;
+
+members {
+    testCases
+}
 
 import structs;
 
@@ -13,7 +17,7 @@ import duck;
 import duck.Matcher;
 import duck.equalTo;
 
-public val duckTests = listOf(
+val testCases = listOf(
     TestCase("equalTo matches using equals function", fun() =>
         testMatcher(duck.equalTo("blah"), listOf(
             description("\"blah\""),

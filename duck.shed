@@ -1,3 +1,14 @@
+module duck;
+
+members {
+    Matcher,
+    assertThat,
+    MatchResult,
+    equalTo EqualTo,
+    isList IsList,
+    anything
+}
+
 import options.some;
 import options.none;
 import lists;
@@ -6,105 +17,94 @@ import lazySequenceables;
 import strings;
 
 import hat.results;
+    
+def Matcher class[T] => () => {
+}
 
-public val duck = object {
-    members {
-        Matcher,
-        assertThat,
-        MatchResult,
-        equalTo EqualTo,
-        isList IsList,
-        anything
+def assertThat fun[T] => (value: T, matcher: Matcher[T]) =>
+    if matcher.matches(value) then
+        results.success()
+    else
+        results.failure("Expected "
+            .concat(matcher.describeSelf())
+            .concat("\nbut ")
+            .concat(matcher.describeMismatch(value))
+        );
+
+def EqualTo class[T] => (value: T) => {
+    public def describeSelf fun() => represent(value);
+    
+    public def matches fun(other: T) => equal(value, other);
+    
+    public def describeMismatch fun(other: T) =>
+        "was ".concat(represent(other));
+        
+    public def matchesWithDescription fun(other: T) =>
+        MatchResult(matches(other), describeMismatch(other))
+}
+
+def IsList class[T] => (matchers: List[Matcher[T]]) => {
+    public def describeSelf fun() => do {
+        val descriptions = matchers.map(fun(matcher: Matcher[T]) => matcher.describeSelf());
+        return "listOf(".concat(strings.join(", ", descriptions)).concat(")");
     }
     
-    def Matcher class[T] => () => {
-    }
+    public def matches fun(other: List[T]) => 
+        matchesWithDescription(other).matches()
     
-    def assertThat fun[T] => (value: T, matcher: Matcher[T]) =>
-        if matcher.matches(value) then
-            results.success()
+    public def describeMismatch fun(other: List[T]) =>
+        matchesWithDescription(other).mismatchDescription();
+        
+    public def matchesWithDescription fun(other: List[T]) => 
+        if not(matchers.length().equals(other.length())) then
+            MatchResult(
+                false,
+                "list was of length ".concat(other.length().toString())
+            )
         else
-            results.failure("Expected "
-                .concat(matcher.describeSelf())
-                .concat("\nbut ")
-                .concat(matcher.describeMismatch(value))
-            );
-    
-    def EqualTo class[T] => (value: T) => {
-        public def describeSelf fun() => represent(value);
+            matchesElementsWithDescription(other);
         
-        public def matches fun(other: T) => equal(value, other);
-        
-        public def describeMismatch fun(other: T) =>
-            "was ".concat(represent(other));
-            
-        public def matchesWithDescription fun(other: T) =>
-            MatchResult(matches(other), describeMismatch(other))
-    }
-    
-    def IsList class[T] => (matchers: List[Matcher[T]]) => {
-        public def describeSelf fun() => do {
-            val descriptions = matchers.map(fun(matcher: Matcher[T]) => matcher.describeSelf());
-            return "listOf(".concat(strings.join(", ", descriptions)).concat(")");
-        }
-        
-        public def matches fun(other: List[T]) => 
-            matchesWithDescription(other).matches()
-        
-        public def describeMismatch fun(other: List[T]) =>
-            matchesWithDescription(other).mismatchDescription();
-            
-        public def matchesWithDescription fun(other: List[T]) => 
-            if not(matchers.length().equals(other.length())) then
-                MatchResult(
-                    false,
-                    "list was of length ".concat(other.length().toString())
-                )
-            else
-                matchesElementsWithDescription(other);
-            
-        def matchesElementsWithDescription fun(other: List[T]) => do {
-            // TODO: remove hack for type parameters
-            //val matchResults = lazySequences.map[Tuple[Double, Matcher[T], T], Option[String]](
-            val matchResults = lazySequenceables.map[()](
-                pack(execMatcher),
-                lists.zip(range(0, matchers.length()), matchers, other)
-            );
-            // Exploit the fact that an option is a sequence
-            val mismatches = lazySequenceables.concat[String](matchResults);
-            return sequenceables.head[String](mismatches)
-                .map[MatchResult](fun(mismatch: String) => MatchResult(false, mismatch))
-                .valueOrElse[MatchResult](fun() => MatchResult(true, ""));
-        };
-        
-        def execMatcher fun(index: Double, matcher: Matcher[T], other: T) =>
-            if matcher.matches(other) then
-                none
-            else do {
-                val description = "element at index "
-                    .concat(index.toString())
-                    .concat(" did not match:")
-                    .concat("\n  ")
-                    .concat(matcher.describeMismatch(other))
-                    .concat("\n  expected ")
-                    .concat(matcher.describeSelf());
-                return some(description);
-            };
-    }
-    
-    val anything = object {
-        members {
-            describeSelf fun() => "<anything>",
-            matches fun(other: Any) => true,
-            describeMismatch fun(other: Any) => "",
-            matchesWithDescription fun(other: Any) => MatchResult(true, "")
-        }
+    def matchesElementsWithDescription fun(other: List[T]) => do {
+        // TODO: remove hack for type parameters
+        //val matchResults = lazySequences.map[Tuple[Double, Matcher[T], T], Option[String]](
+        val matchResults = lazySequenceables.map[()](
+            pack(execMatcher),
+            lists.zip(range(0, matchers.length()), matchers, other)
+        );
+        // Exploit the fact that an option is a sequence
+        val mismatches = lazySequenceables.concat[String](matchResults);
+        return sequenceables.head[String](mismatches)
+            .map[MatchResult](fun(mismatch: String) => MatchResult(false, mismatch))
+            .valueOrElse[MatchResult](fun() => MatchResult(true, ""));
     };
     
-    def MatchResult class(matches: Boolean, mismatchDescription: String) => {
-        members {
-            matches fun() => matches,
-            mismatchDescription fun() => mismatchDescription
-        }
+    def execMatcher fun(index: Double, matcher: Matcher[T], other: T) =>
+        if matcher.matches(other) then
+            none
+        else do {
+            val description = "element at index "
+                .concat(index.toString())
+                .concat(" did not match:")
+                .concat("\n  ")
+                .concat(matcher.describeMismatch(other))
+                .concat("\n  expected ")
+                .concat(matcher.describeSelf());
+            return some(description);
+        };
+}
+
+val anything = object {
+    members {
+        describeSelf fun() => "<anything>",
+        matches fun(other: Any) => true,
+        describeMismatch fun(other: Any) => "",
+        matchesWithDescription fun(other: Any) => MatchResult(true, "")
     }
 };
+
+def MatchResult class(matches: Boolean, mismatchDescription: String) => {
+    members {
+        matches fun() => matches,
+        mismatchDescription fun() => mismatchDescription
+    }
+}

@@ -6,4 +6,4 @@ build-tests:
 	node_modules/.bin/shed-compile node_modules/shed-hat/hat.shed duck.shed test --main=hat.run > _build/tests.js
 
 test: build-tests
-	node _build/tests.js duck.duckTests
+	node _build/tests.js duck.tests.testCases
