@@ -32,30 +32,44 @@ def assertThat fun[T] => (value: T, matcher: Matcher[T]) =>
         );
 
 def EqualTo class[T] => (value: T) => {
-    public def describeSelf fun() => represent(value);
+    members {
+        describeSelf,
+        matches,
+        describeMismatch,
+        matchesWithDescription
+    }
     
-    public def matches fun(other: T) => equal(value, other);
+    def describeSelf fun() => represent(value);
     
-    public def describeMismatch fun(other: T) =>
+    def matches fun(other: T) => equal(value, other);
+    
+    def describeMismatch fun(other: T) =>
         "was ".concat(represent(other));
         
-    public def matchesWithDescription fun(other: T) =>
+    def matchesWithDescription fun(other: T) =>
         MatchResult(matches(other), describeMismatch(other))
 }
 
 def IsList class[T] => (matchers: List[Matcher[T]]) => {
-    public def describeSelf fun() => do {
+    members {
+        describeSelf,
+        matches,
+        describeMismatch,
+        matchesWithDescription
+    }
+    
+    def describeSelf fun() => do {
         val descriptions = matchers.map(fun(matcher: Matcher[T]) => matcher.describeSelf());
         return "listOf(".concat(strings.join(", ", descriptions)).concat(")");
     }
     
-    public def matches fun(other: List[T]) => 
+    def matches fun(other: List[T]) => 
         matchesWithDescription(other).matches()
     
-    public def describeMismatch fun(other: List[T]) =>
+    def describeMismatch fun(other: List[T]) =>
         matchesWithDescription(other).mismatchDescription();
         
-    public def matchesWithDescription fun(other: List[T]) => 
+    def matchesWithDescription fun(other: List[T]) => 
         if not(matchers.length().equals(other.length())) then
             MatchResult(
                 false,
