@@ -12,8 +12,8 @@ members {
 import options.some;
 import options.none;
 import lists;
-import sequenceables;
-import lazySequenceables;
+import sequences;
+import lazySequences;
 import strings;
 
 import hat.results;
@@ -74,20 +74,19 @@ def IsList class[T] => (matchers: List[Matcher[T]]) => {
             MatchResult(
                 false,
                 "list was of length ".concat(other.length().toString())
+                    .concat("\nwas: ").concat(represent(other))
             )
         else
             matchesElementsWithDescription(other);
         
     def matchesElementsWithDescription fun(other: List[T]) => do {
-        // TODO: remove hack for type parameters
-        //val matchResults = lazySequences.map[Tuple[Double, Matcher[T], T], Option[String]](
-        val matchResults = lazySequenceables.map[()](
+        val matchResults = lazySequences.map(
             pack(execMatcher),
             lists.zip(listRange(0, matchers.length()), matchers, other)
         );
         // Exploit the fact that an option is a sequence
-        val mismatches = lazySequenceables.concat[String](matchResults);
-        return sequenceables.head[String](mismatches)
+        val mismatches = lazySequences.concat(matchResults);
+        return sequences.head(mismatches)
             .map[MatchResult](fun(mismatch: String) => MatchResult(false, mismatch))
             .valueOrElse[MatchResult](fun() => MatchResult(true, ""));
     };
