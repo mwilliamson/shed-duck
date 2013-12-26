@@ -1,13 +1,12 @@
 module duck;
 
-members {
+members::
     Matcher,
     assertThat,
     MatchResult,
     equalTo EqualTo,
     isList IsList,
     anything
-}
 
 import options.some;
 import options.none;
@@ -18,8 +17,8 @@ import strings;
 
 import hat.results;
     
-def Matcher class[T] => () => {
-}
+def Matcher class[T] => () => ::
+    pass
 
 def assertThat fun[T] => (value: T, matcher: Matcher[T]) =>
     if matcher.matches(value) then
@@ -31,13 +30,12 @@ def assertThat fun[T] => (value: T, matcher: Matcher[T]) =>
             .concat(matcher.describeMismatch(value))
         );
 
-def EqualTo class[T] => (value: T) => {
-    members {
+def EqualTo class[T] => (value: T) => ::
+    members::
         describeSelf,
         matches,
         describeMismatch,
         matchesWithDescription
-    }
     
     def describeSelf fun() => represent(value);
     
@@ -48,20 +46,17 @@ def EqualTo class[T] => (value: T) => {
         
     def matchesWithDescription fun(other: T) =>
         MatchResult(matches(other), describeMismatch(other))
-}
 
-def IsList class[T] => (matchers: List[Matcher[T]]) => {
-    members {
+def IsList class[T] => (matchers: List[Matcher[T]]) => ::
+    members::
         describeSelf,
         matches,
         describeMismatch,
         matchesWithDescription
-    }
     
-    def describeSelf fun() => do {
+    def describeSelf fun() => do::
         val descriptions = matchers.map(fun(matcher: Matcher[T]) => matcher.describeSelf());
         return "listOf(".concat(strings.join(", ", descriptions)).concat(")");
-    }
     
     def matches fun(other: List[T]) => 
         matchesWithDescription(other).matches()
@@ -79,7 +74,7 @@ def IsList class[T] => (matchers: List[Matcher[T]]) => {
         else
             matchesElementsWithDescription(other);
         
-    def matchesElementsWithDescription fun(other: List[T]) => do {
+    def matchesElementsWithDescription fun(other: List[T]) => do::
         val matchResults = lazySequences.map(
             pack(execMatcher),
             lists.zip(listRange(0, matchers.length()), matchers, other)
@@ -89,12 +84,11 @@ def IsList class[T] => (matchers: List[Matcher[T]]) => {
         return sequences.head(mismatches)
             .map[MatchResult](fun(mismatch: String) => MatchResult(false, mismatch))
             .valueOrElse[MatchResult](fun() => MatchResult(true, ""));
-    };
     
     def execMatcher fun(index: Double, matcher: Matcher[T], other: T) =>
         if matcher.matches(other) then
             none
-        else do {
+        else do::
             val description = "element at index "
                 .concat(index.toString())
                 .concat(" did not match:")
@@ -103,21 +97,15 @@ def IsList class[T] => (matchers: List[Matcher[T]]) => {
                 .concat("\n  expected ")
                 .concat(matcher.describeSelf());
             return some(description);
-        };
-}
 
-val anything = object {
-    members {
+val anything = object::
+    members::
         describeSelf fun() => "<anything>",
         matches fun(other: Any) => true,
         describeMismatch fun(other: Any) => "",
         matchesWithDescription fun(other: Any) => MatchResult(true, "")
-    }
-};
 
-def MatchResult class(matches: Boolean, mismatchDescription: String) => {
-    members {
+def MatchResult class(matches: Boolean, mismatchDescription: String) => ::
+    members::
         matches fun() => matches,
         mismatchDescription fun() => mismatchDescription
-    }
-}
